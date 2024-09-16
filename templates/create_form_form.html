@@ -1,0 +1,239 @@
+{% load static %}
+<div class="d-flex align-items-start">
+    <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+        <button class="nav-link active" id="v-pills-problem-tab" data-bs-toggle="pill" data-bs-target="#v-pills-problem" type="button" role="tab" aria-controls="v-pills-problem" aria-selected="true">題目</button>
+        <button class="nav-link" id="v-pills-input-output-tab" data-bs-toggle="pill" data-bs-target="#v-pills-input-output" type="button" role="tab" aria-controls="v-pills-input-output" aria-selected="false">測資</button>
+        <br>
+        <button class="btn btn-success" type="submit" onclick="PreviewPDF(1)">儲存</button>
+    </div>
+    <form method="post" class="card crate-form col-md-12" style="padding:10px;" id="PDF-Data">
+        <div class="tab-content " id="v-pills-tabContent">
+            <div class="tab-pane fade show active" id="v-pills-problem" role="tabpanel" aria-labelledby="v-pills-problem-tab" tabindex="0">
+                <div class="input-group">
+                    <div class="col-md-4">
+                    <input id ="ZeroJudgeNumber" type="text" value="{{number}}" class="form-control" placeholder="輸入ZeruJudge題號爬蟲" aria-describedby="button-addon2" >
+                </div>
+                    <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick=" GetZeroJudge({{cid}})" >GET</button>
+                    <span id="errorZjMessage" style="color:red;"></span>
+                  </div>
+                {% csrf_token %}
+                <div class="row">
+                    <div class="form-group col-md-8">
+                        {{ problem_form.title.label_tag }}
+                        {{ problem_form.title }}
+                    </div>
+                    <div class="form-group col-md-4">
+                        {{ problem_form.timelimit.label_tag }}
+                        {{ problem_form.timelimit }}
+                    </div>
+                    <div class="form-group">
+                        {{ problem_form.statement.label_tag }}
+                        {{ problem_form.statement }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        {{ problem_form.input_format.label_tag }}
+                        {{ problem_form.input_format }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        {{ problem_form.output_format.label_tag }}
+                        {{ problem_form.output_format }}
+                    </div>
+                    <div class="form-group">
+                        {{ problem_form.hint.label_tag }}
+                        {{ problem_form.hint }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        {{ problem_form.problem_tag.label_tag }}
+                        {{ problem_form.problem_tag }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        {{ problem_form.problem_hard.label_tag }}
+                        {{ problem_form.problem_hard }}
+                    </div>
+                </div>
+                {{ formset.management_form }}
+            </div>
+            <div class="tab-pane fade" id="v-pills-input-output" role="tabpanel" aria-labelledby="v-pills-input-output-tab" tabindex="0">
+                <div class="row align-items-center">
+                        <label>測試資料輸入</label>
+                </div>
+                
+                <div class="form-group">
+                        <button type="button" class="btn btn-outline-primary col-md-4" data-bs-toggle="modal" data-bs-target="#editorModal">編輯答案程式碼</button>
+                        <button type="button" class="btn btn-success col-md-2" onclick="generatorAnswer()" >套用</button>
+                            {% comment %} 用來上傳答案到資料庫 {% endcomment %}
+                            {{problem_form.ans_program}}
+                            
+                    <div id="formset-container" style="padding:10px;">
+                        {% for form in formset %}
+                            <div class="formset-form" data-set="{{forloop.counter0}}">
+                                <div class="row align-items-center">
+
+                                    <div class="form-group col-md-5">
+                                        {{ form.input.label_tag }}
+                                        {{ form.input }}
+                                    </div>
+                                    <div class="form-group col-md-5">
+                                        {{ form.output.label_tag }}
+                                        {{ form.output }}
+                                    </div>
+                                    <div class="row col-md-2">
+                                        <label id="input-output-number">#{{ forloop.counter }}</label>
+                                        
+                                        <div>{{ form.is_sample }}<span style="font-size:16px">sample</span></div>
+                                        <button type="button" class="btn btn-danger" onclick="InputOutputRemove.call(this);">X</button>
+                                    </div>
+                                    <hr>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                            <div class="input-group">
+                                <input type="file" class="form-control" id="InputOutputfile" accept=".in,.ans" multiple>
+                                <button class="btn btn-outline-secondary" type="button" id="inputGroupFileAddon04" onclick="InputOutputUpload()">新增</button>
+                            </div>
+                            
+                            
+                        <button class="btn btn-primary col-md-2" onclick="addFormset()">+</button>
+                    
+                    <input type="text" id="saveValue" name="saveValue" hidden>
+                </div>
+            </div>
+        </div>
+        <!-- Modal -->
+        <div class="modal fade modal-xl " id="editorModal"  tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="staticBackdropLabel">編輯答案程式碼</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="edit-div"><div id="editor" ></div></div>
+                </div>
+                <div class="modal-footer">
+                    <div class="input-group mb-3">
+                        <input type="file" class="form-control" id="pythonFile" name="pythonFile" accept=".py" >
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+    </form>
+</div>
+
+
+<!-- Button trigger modal -->
+
+  
+
+  
+{% comment %} <script src="{% static 'js/tabs.js' %}"></script> {% endcomment %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    async function readFileAsText(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+    
+            reader.onload = function(e) {
+                resolve(e.target.result);
+            };
+    
+            reader.onerror = function(e) {
+                reject(new Error("Failed to read file"));
+            };
+    
+            reader.readAsText(file);
+        });
+    }
+    // ace editor
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/monokai");
+    editor.session.setMode("ace/mode/python");
+    editor.setFontSize(18); // replace 18 with the desired font size
+    editor.setValue(document.getElementById('id_ans_program').value);
+
+    //上傳檔案後，使ace&表單傳入檔案內容
+    function inputAnswer(data){
+    document.getElementById('id_ans_program').value = data;
+    editor.setValue(data);
+    }
+
+    //調整textarea的高度
+    var textarea = document.querySelectorAll('textarea')
+    for(let i = 0; i < textarea.length; i++){
+    textarea[i].rows = 5;
+    }
+    
+
+
+    //偵測到有上傳檔案
+    document.getElementById('pythonFile').addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    readFileAsText(file).then((data) => {
+        inputAnswer(data);
+    });
+    });
+
+    // 使input套入answer並生成output
+    function generatorAnswer(){
+    let ans = editor.getValue();
+    let data = document.querySelectorAll('.inputoutput-input');
+    let dataValue = [];
+    for(let i = 0; i < data.length; i++){
+        dataValue.push(data[i].value);
+    }
+    console.log(data);
+    $.ajax({
+        type: "POST",
+        url: "{% url 'generator' %}",
+        data: {
+            'csrfmiddlewaretoken': '{{ csrf_token }}',
+            'ans': ans,
+            'data': dataValue,
+            },
+        success: function(data){
+            let outputElement = document.querySelectorAll('.inputoutput-output');
+            for(let i = 0; i < outputElement.length; i++){
+                outputElement[i].value = data['output_list'][i];
+            }
+        },
+        error: function(data){
+            console.log(data);
+        }
+        });
+    }
+
+    // 本機端上傳檔案
+    function InputOutputUpload(){
+        // 取得上傳檔案
+        let file = document.getElementById('InputOutputfile').files;
+        // 根據相同的name分類成dict
+        let fileDict = {};
+        for(let i = 0; i < file.length; i++){
+            let name = file[i].name.split('.')[0];
+            let type = file[i].name.split('.')[1];
+            if (type == 'in' || type == 'ans'){
+                if (fileDict[name] == undefined){
+                    fileDict[name] = {};
+                }
+                fileDict[name][type] = file[i];
+            }
+        }
+        // 抓取filedict資料
+        for(let key in fileDict){
+            let input = fileDict[key]['in'];
+            let output = fileDict[key]['ans'];
+            let inputPromise = input != undefined ? readFileAsText(input) : "" ;
+            let outputPromise = output != undefined ? readFileAsText(output) : "";
+            Promise.all([inputPromise, outputPromise]).then(([inputdata, outputdata]) => {
+                inputdata = inputdata.trim();  // 删除 inputdata 尾部的換行
+                outputdata = outputdata.trim();  // 删除 outputdata 尾部的換行
+                addFormset(inputdata, outputdata);
+            });
+        }
+        
+        console.log(fileDict);
+
+    }
+</script>

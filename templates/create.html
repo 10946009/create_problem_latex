@@ -1,0 +1,22 @@
+<!-- FILEPATH: /d:/主任的domjudge/Django_getZerojudge/getZerojudge/templates/create.html -->
+{% extends "base.html" %}
+{% load static %}
+{% block title %}創建題目{% endblock title %}
+{% block content %}
+<link rel="stylesheet" href="{% static "css/create.css" %}">
+{% endblock content %}
+
+{% block body %}
+
+<div class="container" style="max-width:90%;" id="CreateForm">
+    {% include "create_form.html" %}
+</div>
+<div class="toast" role="alert" aria-live="assertive" aria-atomic="true" style="position: fixed; bottom: 5%; left: 1%;">
+    <div class="toast-body" id="errorMessage">
+      
+    </div>
+  </div>
+
+<script src="{% static "js/tabs.js" %}"></script>
+{% endblock body %}
+

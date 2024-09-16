@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  my-latex:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: my-latax-zerojudge-image
+    container_name: my-latex
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    working_dir: /app
+    entrypoint: ["poetry", "run", "python3", "manage.py"]
+    command: ["runserver", "0.0.0.0:8000"]
